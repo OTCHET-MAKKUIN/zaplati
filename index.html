@@ -27,7 +27,7 @@
         /* Таблица с 10 реда и скрол */
         .today-container { background: #fff; border-radius: 8px; border: 1px solid #ddd; overflow: hidden; margin-bottom: 20px; }
         .today-header { background: #e8f0fe; padding: 10px; font-weight: bold; border-bottom: 1px solid #ddd; text-align: center; }
-        .today-scroll { max-height: 380px; overflow-y: auto; scroll-behavior: smooth; } /* Лимит за ~10 реда */
+        .today-scroll { max-height: 380px; overflow-y: auto; scroll-behavior: smooth; }
         .today-table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .today-table thead { position: sticky; top: 0; background: #fff; z-index: 1; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .today-table td, .today-table th { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
@@ -47,6 +47,15 @@
         .nav-controls { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
         .nav-btn { background: #fff; border: 1px solid var(--google-purple); color: var(--google-purple); padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.3s; }
         .nav-btn:hover { background: var(--google-purple); color: white; }
+
+        /* НОВИ СТИЛОВЕ ЗА ДАШБОРД */
+        .dashboard { display: flex; gap: 8px; margin: 15px 0; flex-wrap: wrap; }
+        .dash-box { flex: 1; min-width: 120px; padding: 12px 8px; border-radius: 6px; text-align: center; color: #fff; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .dash-avans { background-color: #fbc02d; color: #000; } /* Жълто */
+        .dash-zaplaty { background-color: #8d6e63; } /* Кафеникаво */
+        .dash-total { background-color: #d32f2f; } /* Червено */
+        .dash-label { font-size: 10px; display: block; margin-bottom: 4px; text-transform: uppercase; opacity: 0.9; }
+        .dash-value { font-size: 16px; }
     </style>
     <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
 </head>
@@ -118,8 +127,10 @@
         "Вили": 3.80, "Стилян": 3.30
     };
 
+    // ГАРАНТИРАНЕ НА ЛОКАЛНА ДАТА (БЪЛГАРИЯ)
     const now = new Date();
-    const todayISO = now.toISOString().split('T')[0];
+    const todayISO = now.toLocaleDateString('sv-SE'); 
+    
     let viewMonth = now.getMonth();
     let viewYear = now.getFullYear();
 
@@ -132,19 +143,15 @@
         loadData();
     };
 
-    // Валидация за часове и служител
     function validateForm() {
         const staff = document.getElementById('staffSel').value;
         const hours = document.getElementById('h_val').value;
         document.getElementById('saveBtn').disabled = (!staff || !hours || isNaN(parseFloat(hours)));
     }
 
-    // Скрол до долу
     function scrollTodayTable() {
         const box = document.getElementById('todayScrollBox');
-        setTimeout(() => {
-            box.scrollTop = box.scrollHeight;
-        }, 100);
+        setTimeout(() => { box.scrollTop = box.scrollHeight; }, 100);
     }
 
     async function loadData() {
@@ -186,6 +193,21 @@
         const area = document.getElementById('monthlyArea');
         area.innerHTML = '';
 
+        // ИЗЧИСЛЯВАНЕ НА ОБЩИ СУМИ ЗА ОБЕКТА
+        let grandAvans = 0, grandZaplaty = 0, grandTotal = 0;
+
+        Object.entries(staffRates).forEach(([name, rate]) => {
+            const logs = results.filter(r => r.get("staff") === name);
+            logs.forEach(l => {
+                const d = new Date(l.get("date")).getDate();
+                const h = l.get("hours") || 0;
+                const b = l.get("bonus") || 0;
+                const rowSum = (h * rate) + b;
+                if(d <= 10) grandAvans += rowSum; else grandZaplaty += rowSum;
+                grandTotal += rowSum;
+            });
+        });
+
         const navHtml = `
             <div class="nav-controls">
                 <button class="nav-btn" onclick="changeMonth(-1)">◀ ПРЕДХОДЕН МЕСЕЦ</button>
@@ -193,6 +215,21 @@
                 <button class="nav-btn" onclick="changeMonth(1)">СЛЕДВАЩ МЕСЕЦ ▶</button>
             </div>
             <h2 style="text-align:center">ВЕДОМОСТ ЗА ${monthNames[viewMonth]} ${viewYear}</h2>
+            
+            <div class="dashboard">
+                <div class="dash-box dash-avans">
+                    <span class="dash-label">ВСИЧКИ АВАНСИ ДО 10-то</span>
+                    <span class="dash-value">${grandAvans.toFixed(2)} €</span>
+                </div>
+                <div class="dash-box dash-zaplaty">
+                    <span class="dash-label">ВСИЧКИ ЗАПЛАТИ ДО 31-во</span>
+                    <span class="dash-value">${grandZaplaty.toFixed(2)} €</span>
+                </div>
+                <div class="dash-box dash-total">
+                    <span class="dash-label">ОБЩО ЗАПЛАТИ + БОНУСИ</span>
+                    <span class="dash-value">${grandTotal.toFixed(2)} €</span>
+                </div>
+            </div>
         `;
         area.innerHTML = navHtml;
         
@@ -205,8 +242,7 @@
                 <thead><tr><th>Дата</th><th>Часове</th><th>Сума</th><th>Бонус</th></tr></thead><tbody>`;
 
             logs.forEach(l => {
-                const dateObj = new Date(l.get("date"));
-                const d = dateObj.getDate();
+                const d = new Date(l.get("date")).getDate();
                 const h = l.get("hours") || 0;
                 const b = l.get("bonus") || 0;
                 if(d <= 10) { aH += h; aB += b; } else { oH += h; oB += b; }
@@ -237,7 +273,6 @@
         const staff = document.getElementById('staffSel').value;
         const hours = document.getElementById('h_val').value;
         const bonus = document.getElementById('b_val').value;
-        
         const btn = document.getElementById('saveBtn');
         const status = document.getElementById('successStatus');
         btn.disabled = true;
