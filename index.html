@@ -61,13 +61,12 @@
             <select id="staffSel" onchange="validateForm()">
                 <option value="" disabled selected>Изберете име...</option>
                 <optgroup label="БАРМАН / СЕРВИТЬОР">
-                    <option>Михаела</option><option>Ева</option><option>Виктория</option>
+                    <option>Михаела</option><option>Ева</option><option>Виктория</option><option>Елисавета</option>
                 </optgroup>
                 <optgroup label="КУХНЯ">
-                    <option>Ваня</option>
+                    <option>Ваня</option><option>Данчо</option><option>Павел</option>
                 </optgroup>
                 <optgroup label="АНИМАТОР / ОБЩ">
-                    <option>Данчо</option><option>Елисавета</option><option>Павел</option>
                     <option>Николай</option><option>Домна</option><option>Барбара</option>
                     <option>Пламена</option><option>Роси</option><option>Вили</option>
                     <option>Стилян</option>
@@ -113,10 +112,10 @@
     Parse.serverURL = 'https://parseapi.back4app.com/';
 
     const staffRates = {
-        "Ваня": 5.11, "Михаела": 4.50, "Ева": 4.50, "Виктория": 3.60,
-        "Данчо": 4.00, "Елисавета": 4.00, "Павел": 4.00, "Николай": 4.00,
-        "Домна": 4.00, "Барбара": 4.00, "Пламена": 4.00, "Роси": 4.00,
-        "Вили": 4.00, "Стилян": 4.00
+        "Ваня": 5.11, "Михаела": 0, "Ева": 3.50, "Виктория": 3.60,
+        "Данчо": 4.60, "Елисавета": 4.00, "Павел": 4.00, "Николай": 5.11,
+        "Домна": 4.00, "Барбара": 4.00, "Пламена": 3.30, "Роси": 3.50,
+        "Вили": 3.80, "Стилян": 3.30
     };
 
     const now = new Date();
