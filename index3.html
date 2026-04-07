@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЗАПЛАТИ - Текущ Месец</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --google-purple: #673ab7; --bg-color: #f0ebf8; --card-white: #ffffff; }
+        body { margin: 0; background-color: var(--bg-color); font-family: 'Roboto', sans-serif; padding: 20px 10px; font-size: 13px; }
+        .container { max-width: 850px; margin: 0 auto; }
+        
+        .card { background: white; border-radius: 8px; border: 1px solid #dadce0; margin-bottom: 15px; overflow: hidden; }
+        .accent { height: 10px; background: var(--google-purple); }
+        .content { padding: 20px; }
+        
+        .question-card { background: white; padding: 20px; border-radius: 8px; border: 1px solid #dadce0; margin-bottom: 12px; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; color: #202124; }
+        
+        select, input { width: 100%; border: none; border-bottom: 1px solid #dadce0; padding: 10px 0; outline: none; font-size: 15px; background: transparent; }
+        select:focus, input:focus { border-bottom: 2px solid var(--google-purple); }
+
+        .btn { background: var(--google-purple); color: white; border: none; padding: 14px; border-radius: 4px; cursor: pointer; font-weight: 500; width: 100%; margin-top: 10px; font-size: 14px; transition: 0.3s; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        #successStatus { color: #2e7d32; font-weight: bold; text-align: center; margin-top: 10px; display: none; }
+
+        /* Таблица с 10 реда и скрол */
+        .today-container { background: #fff; border-radius: 8px; border: 1px solid #ddd; overflow: hidden; margin-bottom: 20px; }
+        .today-header { background: #e8f0fe; padding: 10px; font-weight: bold; border-bottom: 1px solid #ddd; text-align: center; }
+        .today-scroll { max-height: 380px; overflow-y: auto; scroll-behavior: smooth; } /* Лимит за ~10 реда */
+        .today-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .today-table thead { position: sticky; top: 0; background: #fff; z-index: 1; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .today-table td, .today-table th { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
+
+        .staff-section { background: white; border-radius: 8px; padding: 15px; margin-bottom: 30px; border-top: 5px solid var(--google-purple); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .staff-title { font-weight: bold; font-size: 16px; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th { background: #f8f9fa; padding: 8px; border: 1px solid #ddd; }
+        td { padding: 6px; border: 1px solid #ddd; text-align: center; }
+        .avans-row { background: #e3f2fd; font-weight: bold; }
+        .final-box { background: #f9f9f9; border: 1px solid #eee; padding: 10px; margin-top: 10px; border-radius: 5px; }
+        .summary-line { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #ddd; font-size: 14px; }
+        
+        #passArea { text-align: center; padding: 30px; background: white; border-radius: 8px; margin-top: 40px; border: 1px solid #ddd; }
+        optgroup { font-weight: bold; color: var(--google-purple); background: #f0ebf8; }
+
+        .nav-controls { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
+        .nav-btn { background: #fff; border: 1px solid var(--google-purple); color: var(--google-purple); padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.3s; }
+        .nav-btn:hover { background: var(--google-purple); color: white; }
+    </style>
+    <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="card"><div class="accent"></div><div class="content"><h1 id="mainTitle" style="margin:0; text-align:center;">ОТЧЕТ ЗАПЛАТИ</h1></div></div>
+
+    <div class="question-card">
+        <form autocomplete="off">
+            <label>СЛУЖИТЕЛ</label>
+            <select id="staffSel" onchange="validateForm()">
+                <option value="" disabled selected>Изберете име...</option>
+                <optgroup label="БАРМАН / СЕРВИТЬОР">
+                    <option>Михаела</option><option>Ева</option><option>Виктория</option>
+                </optgroup>
+                <optgroup label="КУХНЯ">
+                    <option>Ваня</option>
+                </optgroup>
+                <optgroup label="АНИМАТОР / ОБЩ">
+                    <option>Данчо</option><option>Елисавета</option><option>Павел</option>
+                    <option>Николай</option><option>Домна</option><option>Барбара</option>
+                    <option>Пламена</option><option>Роси</option><option>Вили</option>
+                    <option>Стилян</option>
+                </optgroup>
+            </select>
+
+            <label style="margin-top:15px">ИЗРАБОТЕНИ ЧАСОВЕ</label>
+            <input type="text" id="h_val" placeholder="0" inputmode="decimal" 
+                   oninput="validateForm()"
+                   onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46">
+
+            <label style="margin-top:15px">БОНУС (€)</label>
+            <input type="text" id="b_val" placeholder="0.00" inputmode="decimal" 
+                   onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46">
+
+            <button type="button" class="btn" id="saveBtn" disabled>ЗАПИШИ ДАННИТЕ</button>
+            <div id="successStatus">✅ Успешно изпратено!</div>
+        </form>
+    </div>
+
+    <div class="today-container">
+        <div class="today-header">ДНЕШНИ ЗАПИСИ</div>
+        <div class="today-scroll" id="todayScrollBox">
+            <table class="today-table">
+                <thead><tr><th>Служител</th><th>Часове</th><th>Бонус</th></tr></thead>
+                <tbody id="todayBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="passArea">
+        <label>Парола за Месечна Ведомост:</label>
+        <input type="password" id="p_field" placeholder="" 
+               style="width: 150px; text-align: center;" autocomplete="new-password">
+        <button class="btn" onclick="unlock()" style="margin-top:15px;">ОТКЛЮЧИ ТАБЛИЦИТЕ</button>
+    </div>
+
+    <div id="monthlyArea" style="display:none; margin-top: 20px;"></div>
+</div>
+
+<script>
+    Parse.initialize("nRZ2VJnuAxFbP1DPxK524AAL4rUh6avCTbTnQUsL", "MXB3Tw1iF1Cw1HrqKZFFUhf7DHETzaOezipXcPtw");
+    Parse.serverURL = 'https://parseapi.back4app.com/';
+
+    const staffRates = {
+        "Ваня": 5.11, "Михаела": 4.50, "Ева": 4.50, "Виктория": 3.60,
+        "Данчо": 4.00, "Елисавета": 4.00, "Павел": 4.00, "Николай": 4.00,
+        "Домна": 4.00, "Барбара": 4.00, "Пламена": 4.00, "Роси": 4.00,
+        "Вили": 4.00, "Стилян": 4.00
+    };
+
+    const now = new Date();
+    const todayISO = now.toISOString().split('T')[0];
+    let viewMonth = now.getMonth();
+    let viewYear = now.getFullYear();
+
+    const monthNames = ["ЯНУАРИ", "ФЕВРУАРИ", "МАРТ", "АПРИЛ", "МАЙ", "ЮНИ", "ЮЛИ", "АВГУСТ", "СЕПТЕМВРИ", "ОКТОМВРИ", "НОЕМВРИ", "ДЕКЕМВРИ"];
+    document.getElementById('mainTitle').innerText = "ЗАПЛАТИ - " + monthNames[now.getMonth()];
+
+    window.onload = () => {
+        document.getElementById('b_val').value = "";
+        document.getElementById('p_field').value = "";
+        loadData();
+    };
+
+    // Валидация за часове и служител
+    function validateForm() {
+        const staff = document.getElementById('staffSel').value;
+        const hours = document.getElementById('h_val').value;
+        document.getElementById('saveBtn').disabled = (!staff || !hours || isNaN(parseFloat(hours)));
+    }
+
+    // Скрол до долу
+    function scrollTodayTable() {
+        const box = document.getElementById('todayScrollBox');
+        setTimeout(() => {
+            box.scrollTop = box.scrollHeight;
+        }, 100);
+    }
+
+    async function loadData() {
+        const query = new Parse.Query("WorkLog");
+        query.limit(1000);
+        query.ascending("date");
+        const results = await query.find();
+
+        const tBody = document.getElementById('todayBody');
+        tBody.innerHTML = '';
+        results.filter(r => r.get("date") === todayISO).forEach(l => {
+            tBody.innerHTML += `<tr><td>${l.get("staff")}</td><td>${l.get("hours")} ч.</td><td>${l.get("bonus")} €</td></tr>`;
+        });
+        
+        scrollTodayTable();
+
+        if(document.getElementById('monthlyArea').style.display === 'block') {
+            const filteredResults = results.filter(r => {
+                const d = new Date(r.get("date"));
+                return d.getMonth() === viewMonth && d.getFullYear() === viewYear;
+            });
+            renderMonthly(filteredResults);
+        }
+    }
+
+    function changeMonth(delta) {
+        if (delta === 0) {
+            viewMonth = now.getMonth();
+            viewYear = now.getFullYear();
+        } else {
+            viewMonth += delta;
+            if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+            if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+        }
+        loadData();
+    }
+
+    function renderMonthly(results) {
+        const area = document.getElementById('monthlyArea');
+        area.innerHTML = '';
+
+        const navHtml = `
+            <div class="nav-controls">
+                <button class="nav-btn" onclick="changeMonth(-1)">◀ ПРЕДХОДЕН МЕСЕЦ</button>
+                <button class="nav-btn" onclick="changeMonth(0)">ТЕКУЩ МЕСЕЦ</button>
+                <button class="nav-btn" onclick="changeMonth(1)">СЛЕДВАЩ МЕСЕЦ ▶</button>
+            </div>
+            <h2 style="text-align:center">ВЕДОМОСТ ЗА ${monthNames[viewMonth]} ${viewYear}</h2>
+        `;
+        area.innerHTML = navHtml;
+        
+        Object.entries(staffRates).forEach(([name, rate]) => {
+            const logs = results.filter(r => r.get("staff") === name);
+            if(logs.length === 0) return;
+
+            let aH = 0, aB = 0, oH = 0, oB = 0;
+            let html = `<div class="staff-section"><div class="staff-title">${name} (Ставка: ${rate}€)</div><table>
+                <thead><tr><th>Дата</th><th>Часове</th><th>Сума</th><th>Бонус</th></tr></thead><tbody>`;
+
+            logs.forEach(l => {
+                const dateObj = new Date(l.get("date"));
+                const d = dateObj.getDate();
+                const h = l.get("hours") || 0;
+                const b = l.get("bonus") || 0;
+                if(d <= 10) { aH += h; aB += b; } else { oH += h; oB += b; }
+                html += `<tr class="${d <= 10 ? 'avans-row' : ''}"><td>${l.get("date")}</td><td>${h}</td><td>${(h*rate).toFixed(2)}</td><td>${b.toFixed(2)}</td></tr>`;
+            });
+
+            const aTotal = (aH * rate) + aB;
+            const oTotal = (oH * rate) + oB;
+            html += `</tbody></table><div class="final-box">
+                <div class="summary-line"><span>АВАНС (1-10):</span> <strong>${aTotal.toFixed(2)} €</strong></div>
+                <div class="summary-line"><span>ЗАРАБОТКА (11-31):</span> <strong>${oTotal.toFixed(2)} €</strong></div>
+                <div class="summary-line" style="font-size:16px; border:none; margin-top:5px;"><span>ОБЩО:</span> <strong style="color:green;">${(aTotal+oTotal).toFixed(2)} €</strong></div>
+                <div class="summary-line" style="background:#fff9c4; padding:5px; border:none;"><span>ОСТАТЪК ЗА ПОЛУЧАВАНЕ:</span> <strong style="color:red;">${oTotal.toFixed(2)} €</strong></div>
+            </div></div>`;
+            area.innerHTML += html;
+        });
+    }
+
+    function unlock() {
+        if(document.getElementById('p_field').value === '0000') {
+            document.getElementById('passArea').style.display = 'none';
+            document.getElementById('monthlyArea').style.display = 'block';
+            loadData();
+        } else { alert("Грешна парола!"); }
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+        const staff = document.getElementById('staffSel').value;
+        const hours = document.getElementById('h_val').value;
+        const bonus = document.getElementById('b_val').value;
+        
+        const btn = document.getElementById('saveBtn');
+        const status = document.getElementById('successStatus');
+        btn.disabled = true;
+
+        const Log = Parse.Object.extend("WorkLog");
+        const entry = new Log();
+        try {
+            await entry.save({
+                date: todayISO, staff: staff,
+                hours: parseFloat(hours) || 0,
+                bonus: parseFloat(bonus) || 0
+            });
+            document.getElementById('h_val').value = '';
+            document.getElementById('b_val').value = '';
+            document.getElementById('staffSel').selectedIndex = 0;
+            status.style.display = 'block';
+            setTimeout(() => { status.style.display = 'none'; }, 3000);
+            await loadData();
+        } catch (e) { alert("Грешка!"); }
+        finally { validateForm(); }
+    });
+</script>
+
+</body>
+</html>
