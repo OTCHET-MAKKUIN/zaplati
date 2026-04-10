@@ -10,53 +10,45 @@
         :root { --google-purple: #673ab7; --bg-color: #f0ebf8; --card-white: #ffffff; }
         body { margin: 0; background-color: var(--bg-color); font-family: 'Roboto', sans-serif; padding: 20px 10px; font-size: 13px; }
         .container { max-width: 850px; margin: 0 auto; }
-        
         .card { background: white; border-radius: 8px; border: 1px solid #dadce0; margin-bottom: 15px; overflow: hidden; }
         .accent { height: 10px; background: var(--google-purple); }
         .content { padding: 20px; }
-        
         .question-card { background: white; padding: 20px; border-radius: 8px; border: 1px solid #dadce0; margin-bottom: 12px; }
         label { display: block; margin-bottom: 8px; font-weight: 500; color: #202124; }
-        
         select, input { width: 100%; border: none; border-bottom: 1px solid #dadce0; padding: 10px 0; outline: none; font-size: 15px; background: transparent; }
         select:focus, input:focus { border-bottom: 2px solid var(--google-purple); }
-
         .btn { background: var(--google-purple); color: white; border: none; padding: 14px; border-radius: 4px; cursor: pointer; font-weight: 500; width: 100%; margin-top: 10px; font-size: 14px; transition: 0.3s; }
         .btn:disabled { background: #ccc; cursor: not-allowed; }
         #successStatus { color: #2e7d32; font-weight: bold; text-align: center; margin-top: 10px; display: none; }
-
-        /* Таблица с 10 реда и скрол */
         .today-container { background: #fff; border-radius: 8px; border: 1px solid #ddd; overflow: hidden; margin-bottom: 20px; }
         .today-header { background: #e8f0fe; padding: 10px; font-weight: bold; border-bottom: 1px solid #ddd; text-align: center; }
         .today-scroll { max-height: 380px; overflow-y: auto; scroll-behavior: smooth; }
         .today-table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .today-table thead { position: sticky; top: 0; background: #fff; z-index: 1; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .today-table td, .today-table th { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
-
         .staff-section { background: white; border-radius: 8px; padding: 15px; margin-bottom: 30px; border-top: 5px solid var(--google-purple); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .staff-title { font-weight: bold; font-size: 16px; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
         table { width: 100%; border-collapse: collapse; font-size: 11px; }
         th { background: #f8f9fa; padding: 8px; border: 1px solid #ddd; }
         td { padding: 6px; border: 1px solid #ddd; text-align: center; }
-        .avans-row { background: #e3f2fd; font-weight: bold; }
         .final-box { background: #f9f9f9; border: 1px solid #eee; padding: 10px; margin-top: 10px; border-radius: 5px; }
-        .summary-line { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #ddd; font-size: 14px; }
-        
+        .summary-line { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #ddd; font-size: 13px; }
         #passArea { text-align: center; padding: 30px; background: white; border-radius: 8px; margin-top: 40px; border: 1px solid #ddd; }
-        optgroup { font-weight: bold; color: var(--google-purple); background: #f0ebf8; }
-
         .nav-controls { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
         .nav-btn { background: #fff; border: 1px solid var(--google-purple); color: var(--google-purple); padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.3s; }
-        .nav-btn:hover { background: var(--google-purple); color: white; }
-
-        /* НОВИ СТИЛОВЕ ЗА ДАШБОРД */
+        
+        /* ДАШБОРД СТИЛОВЕ */
         .dashboard { display: flex; gap: 8px; margin: 15px 0; flex-wrap: wrap; }
         .dash-box { flex: 1; min-width: 120px; padding: 12px 8px; border-radius: 6px; text-align: center; color: #fff; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .dash-avans { background-color: #fbc02d; color: #000; } /* Жълто */
-        .dash-zaplaty { background-color: #8d6e63; } /* Кафеникаво */
-        .dash-total { background-color: #d32f2f; } /* Червено */
+        .dash-avans { background-color: #fbc02d; color: #000; }
+        .dash-zaplaty { background-color: #8d6e63; }
+        .dash-total { background-color: #d32f2f; }
         .dash-label { font-size: 10px; display: block; margin-bottom: 4px; text-transform: uppercase; opacity: 0.9; }
         .dash-value { font-size: 16px; }
+
+        .advance-control { display: flex; gap: 5px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
+        .advance-input { width: 80px !important; font-size: 12px !important; padding: 5px !important; }
+        .advance-btn { background: #d32f2f; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
     </style>
     <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
 </head>
@@ -84,13 +76,10 @@
             </select>
 
             <label style="margin-top:15px">ИЗРАБОТЕНИ ЧАСОВЕ</label>
-            <input type="text" id="h_val" placeholder="0" inputmode="decimal" 
-                   oninput="validateForm()"
-                   onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46">
+            <input type="text" id="h_val" placeholder="0" inputmode="decimal" oninput="validateForm()">
 
             <label style="margin-top:15px">БОНУС (€)</label>
-            <input type="text" id="b_val" placeholder="0.00" inputmode="decimal" 
-                   onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46">
+            <input type="text" id="b_val" placeholder="0.00" inputmode="decimal">
 
             <button type="button" class="btn" id="saveBtn" disabled>ЗАПИШИ ДАННИТЕ</button>
             <div id="successStatus">✅ Успешно изпратено!</div>
@@ -109,9 +98,8 @@
 
     <div id="passArea">
         <label>Парола за Месечна Ведомост:</label>
-        <input type="password" id="p_field" placeholder="" 
-               style="width: 150px; text-align: center;" autocomplete="new-password">
-        <button class="btn" id="unlockBtn" onclick="unlock()" style="margin-top:15px;">ОТКЛЮЧИ ТАБЛИЦИТЕ</button>
+        <input type="password" id="p_field" placeholder="" style="width: 150px; text-align: center;">
+        <button class="btn" onclick="unlock()" style="margin-top:15px;">ОТКЛЮЧИ ТАБЛИЦИТЕ</button>
     </div>
 
     <div id="monthlyArea" style="display:none; margin-top: 20px;"></div>
@@ -130,42 +118,15 @@
 
     const now = new Date();
     const todayISO = now.toLocaleDateString('sv-SE'); 
-    
     let viewMonth = now.getMonth();
     let viewYear = now.getFullYear();
-
     const monthNames = ["ЯНУАРИ", "ФЕВРУАРИ", "МАРТ", "АПРИЛ", "МАЙ", "ЮНИ", "ЮЛИ", "АВГУСТ", "СЕПТЕМВРИ", "ОКТОМВРИ", "НОЕМВРИ", "ДЕКЕМВРИ"];
-    document.getElementById('mainTitle').innerText = "ЗАПЛАТИ - " + monthNames[now.getMonth()];
 
-    // --- КОРЕКЦИЯТА ЗА ENTER ---
-    document.getElementById('p_field').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            unlock();
-        }
-    });
-    // ---------------------------
-
-    window.onload = () => {
-        document.getElementById('b_val').value = "";
-        document.getElementById('p_field').value = "";
-        loadData();
-    };
-
-    function validateForm() {
-        const staff = document.getElementById('staffSel').value;
-        const hours = document.getElementById('h_val').value;
-        document.getElementById('saveBtn').disabled = (!staff || !hours || isNaN(parseFloat(hours)));
-    }
-
-    function scrollTodayTable() {
-        const box = document.getElementById('todayScrollBox');
-        setTimeout(() => { box.scrollTop = box.scrollHeight; }, 100);
-    }
+    document.getElementById('p_field').addEventListener('keypress', (e) => { if(e.key === 'Enter') unlock(); });
 
     async function loadData() {
         const query = new Parse.Query("WorkLog");
-        query.limit(1000);
-        query.ascending("date");
+        query.limit(1000).ascending("date");
         const results = await query.find();
 
         const tBody = document.getElementById('todayBody');
@@ -174,98 +135,97 @@
             tBody.innerHTML += `<tr><td>${l.get("staff")}</td><td>${l.get("hours")} ч.</td><td>${l.get("bonus")} €</td></tr>`;
         });
         
-        scrollTodayTable();
-
         if(document.getElementById('monthlyArea').style.display === 'block') {
-            const filteredResults = results.filter(r => {
+            const filtered = results.filter(r => {
                 const d = new Date(r.get("date"));
                 return d.getMonth() === viewMonth && d.getFullYear() === viewYear;
             });
-            renderMonthly(filteredResults);
+            renderMonthly(filtered);
         }
-    }
-
-    function changeMonth(delta) {
-        if (delta === 0) {
-            viewMonth = now.getMonth();
-            viewYear = now.getFullYear();
-        } else {
-            viewMonth += delta;
-            if (viewMonth < 0) { viewMonth = 11; viewYear--; }
-            if (viewMonth > 11) { viewMonth = 0; viewYear++; }
-        }
-        loadData();
     }
 
     function renderMonthly(results) {
         const area = document.getElementById('monthlyArea');
         area.innerHTML = '';
+        let globalAvans = 0, globalZaplaty = 0, globalTotal = 0;
 
-        let grandAvans = 0, grandZaplaty = 0, grandTotal = 0;
-
-        Object.entries(staffRates).forEach(([name, rate]) => {
-            const logs = results.filter(r => r.get("staff") === name);
-            logs.forEach(l => {
-                const d = new Date(l.get("date")).getDate();
-                const h = l.get("hours") || 0;
-                const b = l.get("bonus") || 0;
-                const rowSum = (h * rate) + b;
-                if(d <= 10) grandAvans += rowSum; else grandZaplaty += rowSum;
-                grandTotal += rowSum;
-            });
-        });
-
-        const navHtml = `
+        area.innerHTML = `
             <div class="nav-controls">
-                <button class="nav-btn" onclick="changeMonth(-1)">◀ ПРЕДХОДЕН МЕСЕЦ</button>
-                <button class="nav-btn" onclick="changeMonth(0)">ТЕКУЩ МЕСЕЦ</button>
-                <button class="nav-btn" onclick="changeMonth(1)">СЛЕДВАЩ МЕСЕЦ ▶</button>
+                <button class="nav-btn" onclick="changeMonth(-1)">◀ ПРЕДХОДЕН</button>
+                <button class="nav-btn" onclick="changeMonth(0)">ТЕКУЩ</button>
+                <button class="nav-btn" onclick="changeMonth(1)">СЛЕДВАЩ ▶</button>
             </div>
-            <h2 style="text-align:center">ВЕДОМОСТ ЗА ${monthNames[viewMonth]} ${viewYear}</h2>
-            
-            <div class="dashboard">
-                <div class="dash-box dash-avans">
-                    <span class="dash-label">ВСИЧКИ АВАНСИ ДО 10-то</span>
-                    <span class="dash-value">${grandAvans.toFixed(2)} €</span>
-                </div>
-                <div class="dash-box dash-zaplaty">
-                    <span class="dash-label">ВСИЧКИ ЗАПЛАТИ ДО 31-во</span>
-                    <span class="dash-value">${grandZaplaty.toFixed(2)} €</span>
-                </div>
-                <div class="dash-box dash-total">
-                    <span class="dash-label">ОБЩО ЗАПЛАТИ + БОНУСИ</span>
-                    <span class="dash-value">${grandTotal.toFixed(2)} €</span>
-                </div>
-            </div>
+            <h2 style="text-align:center">${monthNames[viewMonth]} ${viewYear}</h2>
+            <div id="dashContainer"></div>
         `;
-        area.innerHTML = navHtml;
-        
+
         Object.entries(staffRates).forEach(([name, rate]) => {
             const logs = results.filter(r => r.get("staff") === name);
             if(logs.length === 0) return;
 
-            let aH = 0, aB = 0, oH = 0, oB = 0;
-            let html = `<div class="staff-section"><div class="staff-title">${name} (Ставка: ${rate}€)</div><table>
+            let заработкаЧиста = 0; 
+            let общоАвансиЗаСлужител = 0;   
+
+            let html = `<div class="staff-section"><div class="staff-title">${name} (${rate}€)</div><table>
                 <thead><tr><th>Дата</th><th>Часове</th><th>Сума</th><th>Бонус</th></tr></thead><tbody>`;
 
             logs.forEach(l => {
                 const d = new Date(l.get("date")).getDate();
                 const h = l.get("hours") || 0;
                 const b = l.get("bonus") || 0;
-                if(d <= 10) { aH += h; aB += b; } else { oH += h; oB += b; }
-                html += `<tr class="${d <= 10 ? 'avans-row' : ''}"><td>${l.get("date")}</td><td>${h}</td><td>${(h*rate).toFixed(2)}</td><td>${b.toFixed(2)}</td></tr>`;
+                const rowSum = (h * rate) + b;
+                
+                заработкаЧиста += rowSum;
+                if (b < 0) общоАвансиЗаСлужител += Math.abs(b);
+
+                // За Дашборда (по твоя оригинална логика 1-10 и 11-31)
+                if(d <= 10) globalAvans += rowSum; else globalZaplaty += rowSum;
+
+                html += `<tr><td>${l.get("date")}</td><td>${h}</td><td>${(h*rate).toFixed(2)}</td><td>${b.toFixed(2)}</td></tr>`;
             });
 
-            const aTotal = (aH * rate) + aB;
-            const oTotal = (oH * rate) + oB;
-            html += `</tbody></table><div class="final-box">
-                <div class="summary-line"><span>АВАНС (1-10):</span> <strong>${aTotal.toFixed(2)} €</strong></div>
-                <div class="summary-line"><span>ЗАРАБОТКА (11-31):</span> <strong>${oTotal.toFixed(2)} €</strong></div>
-                <div class="summary-line" style="font-size:16px; border:none; margin-top:5px;"><span>ОБЩО:</span> <strong style="color:green;">${(aTotal+oTotal).toFixed(2)} €</strong></div>
-                <div class="summary-line" style="background:#fff9c4; padding:5px; border:none;"><span>ОСТАТЪК ЗА ПОЛУЧАВАНЕ:</span> <strong style="color:red;">${oTotal.toFixed(2)} €</strong></div>
-            </div></div>`;
+            const реалнаЗаплата = заработкаЧиста + общоАвансиЗаСлужител;
+            globalTotal += реалнаЗаплата;
+
+            html += `</tbody></table>
+                <div class="advance-control">
+                    <input type="number" id="adv_${name.replace(/\s/g,'')}" class="advance-input" placeholder="Сума €">
+                    <button class="advance-btn" onclick="payAdvance('${name}')">ИЗПЛАТИ АВАНС</button>
+                </div>
+                <div class="final-box">
+                    <div class="summary-line"><span>ЗАРАБОТКА КЪМ ДНЕШНА ДАТА:</span> <strong>${реалнаЗаплата.toFixed(2)} €</strong></div>
+                    <div class="summary-line" style="background:#fff9c4; padding:5px; border:none;"><span>ОСТАТЪК ЗА ПОЛУЧАВАНЕ:</span> <strong style="color:red; font-size:15px;">${заработкаЧиста.toFixed(2)} €</strong></div>
+                    <div class="summary-line" style="border:none; margin-top:8px;"><span>ОБЩА ЗАПЛАТА:</span> <strong style="color:#2e7d32; font-size:18px;">${реалнаЗаплата.toFixed(2)} €</strong></div>
+                </div></div>`;
             area.innerHTML += html;
         });
+
+        document.getElementById('dashContainer').innerHTML = `
+            <div class="dashboard">
+                <div class="dash-box dash-avans"><span class="dash-label">ВСИЧКИ АВАНСИ ДО 10-то</span><span class="dash-value">${globalAvans.toFixed(2)} €</span></div>
+                <div class="dash-box dash-zaplaty"><span class="dash-label">ВСИЧКИ ЗАПЛАТИ ДО 31-во</span><span class="dash-value">${globalZaplaty.toFixed(2)} €</span></div>
+                <div class="dash-box dash-total"><span class="dash-label">ОБЩО ЗАПЛАТИ + БОНУСИ</span><span class="dash-value">${globalTotal.toFixed(2)} €</span></div>
+            </div>`;
+    }
+
+    async function payAdvance(name) {
+        const inputId = `adv_${name.replace(/\s/g,'')}`;
+        const amount = parseFloat(document.getElementById(inputId).value);
+        if(!amount || amount <= 0) return alert("Въведете сума!");
+        if(!confirm(`Изплащате ${amount}€ аванс на ${name}?`)) return;
+
+        const Log = Parse.Object.extend("WorkLog");
+        const entry = new Log();
+        try {
+            await entry.save({ date: todayISO, staff: name, hours: 0, bonus: -amount });
+            loadData();
+        } catch (e) { alert("Грешка!"); }
+    }
+
+    function validateForm() {
+        const staff = document.getElementById('staffSel').value;
+        const hours = document.getElementById('h_val').value;
+        document.getElementById('saveBtn').disabled = (!staff || !hours);
     }
 
     function unlock() {
@@ -273,35 +233,33 @@
             document.getElementById('passArea').style.display = 'none';
             document.getElementById('monthlyArea').style.display = 'block';
             loadData();
-        } else { alert("Грешна парола!"); }
+        } else alert("Грешна парола!");
+    }
+
+    function changeMonth(delta) {
+        viewMonth += delta;
+        if(viewMonth < 0){viewMonth=11; viewYear--;} 
+        if(viewMonth > 11){viewMonth=0; viewYear++;}
+        loadData();
     }
 
     document.getElementById('saveBtn').addEventListener('click', async () => {
-        const staff = document.getElementById('staffSel').value;
-        const hours = document.getElementById('h_val').value;
-        const bonus = document.getElementById('b_val').value;
-        const btn = document.getElementById('saveBtn');
-        const status = document.getElementById('successStatus');
-        btn.disabled = true;
-
         const Log = Parse.Object.extend("WorkLog");
         const entry = new Log();
         try {
             await entry.save({
-                date: todayISO, staff: staff,
-                hours: parseFloat(hours) || 0,
-                bonus: parseFloat(bonus) || 0
+                date: todayISO, staff: document.getElementById('staffSel').value,
+                hours: parseFloat(document.getElementById('h_val').value) || 0,
+                bonus: parseFloat(document.getElementById('b_val').value) || 0
             });
-            document.getElementById('h_val').value = '';
-            document.getElementById('b_val').value = '';
-            document.getElementById('staffSel').selectedIndex = 0;
-            status.style.display = 'block';
-            setTimeout(() => { status.style.display = 'none'; }, 3000);
-            await loadData();
+            document.getElementById('h_val').value = ''; document.getElementById('b_val').value = '';
+            document.getElementById('successStatus').style.display = 'block';
+            setTimeout(() => { document.getElementById('successStatus').style.display = 'none'; }, 2000);
+            loadData();
         } catch (e) { alert("Грешка!"); }
-        finally { validateForm(); }
     });
-</script>
 
+    loadData();
+</script>
 </body>
 </html>
