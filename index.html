@@ -73,17 +73,10 @@
                     <option>Стилян</option>
                 </optgroup>
             </select>
-
             <label style="margin-top:15px">ИЗРАБОТЕНИ ЧАСОВЕ</label>
-            <input type="text" id="h_val" placeholder="0" 
-                   inputmode="decimal" 
-                   oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.'); validateForm();">
-
+            <input type="text" id="h_val" placeholder="0" inputmode="decimal" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.'); validateForm();">
             <label style="margin-top:15px">БОНУС (€)</label>
-            <input type="text" id="b_val" placeholder="0.00" 
-                   inputmode="decimal"
-                   oninput="this.value = this.value.replace(/[^0-9.,-]/g, '').replace(',', '.');">
-
+            <input type="text" id="b_val" placeholder="0.00" inputmode="decimal" oninput="this.value = this.value.replace(/[^0-9.,-]/g, '').replace(',', '.');">
             <button type="button" class="btn" id="saveBtn" disabled>ЗАПИШИ ДАННИТЕ</button>
             <div id="successStatus">✅ Успешно изпратено!</div>
         </form>
@@ -105,18 +98,21 @@
                 <option>Стилян</option>
             </optgroup>
         </select>
-        <input type="text" id="userPass" placeholder="Парола (цифри)" 
-               inputmode="numeric" 
-               style="margin-top:10px; width: 150px; text-align: center;"
-               oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+        <input type="text" id="userPass" placeholder="Парола (цифри)" inputmode="numeric" style="margin-top:10px; width: 150px; text-align: center;" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
         <button class="btn" style="background: #2196F3;" onclick="viewIndividual()">ВИЖ МОЯТА ТАБЛИЦА</button>
     </div>
 
     <div class="today-container">
         <div class="today-header">ДНЕШНИ ЗАПИСИ</div>
-        <div class="today-scroll" id="todayScrollBox">
+        <div id="todayScrollBox" class="today-scroll">
             <table class="today-table">
-                <thead><tr><th>Служител</th><th>Часове</th><th>Бонус</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Служител</th>
+                        <th>Часове</th>
+                        <th>Бонус / Аванс</th>
+                    </tr>
+                </thead>
                 <tbody id="todayBody"></tbody>
             </table>
         </div>
@@ -124,7 +120,7 @@
 
     <div id="passArea">
         <label>Парола за Управител (Пълен отчет):</label>
-        <input type="password" id="p_field" placeholder="" style="width: 150px; text-align: center;">
+        <input type="password" id="p_field" style="width: 150px; text-align: center;">
         <button class="btn" onclick="unlock()" style="margin-top:15px;">ОТКЛЮЧИ ВСИЧКИ</button>
     </div>
 
@@ -136,17 +132,15 @@
     Parse.serverURL = 'https://parseapi.back4app.com/';
 
     const staffRates = {
-        "Ваня": 5.11, "Михаела": 0, "Ева": 3.50, "Виктория": 3.60,
-        "Данчо": 4.60, "Елисавета": 4.00, "Павел": 4.00, "Николай": 5.11,
-        "Домна": 4.00, "Барбара": 4.00, "Пламена": 3.30, "Роси": 3.50,
+        "Ваня": 5.11, "Михаела": 0, "Ева": 3.50, "Виктория": 3.60, "Данчо": 4.60, "Елисавета": 4.00,
+        "Павел": 4.00, "Николай": 5.11, "Домна": 4.00, "Барбара": 4.00, "Пламена": 3.30, "Роси": 3.50,
         "Вили": 3.80, "Стилян": 3.30
     };
 
     const userPasswords = {
-        "Михаела": "4821", "Ева": "9350", "Виктория": "1174", "Елисавета": "6209",
-        "Ваня": "3381", "Данчо": "7742", "Павел": "5019", "Николай": "8834",
-        "Домна": "2956", "Барбара": "4410", "Пламена": "6023", "Роси": "1978",
-        "Вили": "3562", "Стилян": "8245"
+        "Михаела": "4821", "Ева": "9350", "Виктория": "1174", "Елисавета": "6209", "Ваня": "3381", 
+        "Данчо": "7742", "Павел": "5019", "Николай": "8834", "Домна": "2956", "Барбара": "4410", 
+        "Пламена": "6023", "Роси": "1978", "Вили": "3562", "Стилян": "8245"
     };
 
     const now = new Date();
@@ -164,7 +158,17 @@
         const tBody = document.getElementById('todayBody');
         tBody.innerHTML = '';
         results.filter(r => r.get("date") === todayISO).forEach(l => {
-            tBody.innerHTML += `<tr><td>${l.get("staff")}</td><td>${l.get("hours")} ч.</td><td>${l.get("bonus")} €</td></tr>`;
+            let h = l.get("hours");
+            let b = l.get("bonus") || 0;
+            
+            let displayHours = (h === -1) ? "-" : h + " ч.";
+            let displayBonus = (h === -1) ? "АВАНС: " + b + " €" : b + " €";
+
+            tBody.innerHTML += `<tr>
+                <td>${l.get("staff")}</td>
+                <td>${displayHours}</td>
+                <td>${displayBonus}</td>
+            </tr>`;
         });
         
         if(document.getElementById('monthlyArea').style.display === 'block') {
@@ -179,7 +183,7 @@
     function renderMonthly(results) {
         const area = document.getElementById('monthlyArea');
         area.innerHTML = '';
-        let totalAvansi = 0, totalOstatyk = 0, totalGlobal = 0;
+        let globalPaidAvansi = 0, globalOstatyk = 0, globalTotalFond = 0;
 
         area.innerHTML = `
             <div class="nav-controls">
@@ -197,19 +201,25 @@
             const logs = results.filter(r => r.get("staff") === name);
             if(logs.length === 0 && currentViewMode === "admin") return;
 
-            let заработкаЧиста = 0; let авансиНаСлужител = 0;   
-            let html = `<div class="staff-section"><div class="staff-title">${name} (${rate}€)</div><table><thead><tr><th>Дата</th><th>Часове</th><th>Сума</th><th>Бонус</th></tr></thead><tbody>`;
+            let общаЗаработка = 0; let сумаАванси = 0;   
+            let html = `<div class="staff-section"><div class="staff-title">${name} (${rate}€)</div><table><thead><tr><th>Дата</th><th>Часове</th><th>Заработка</th><th>Бонус</th></tr></thead><tbody>`;
 
             logs.forEach(l => {
-                const h = l.get("hours") || 0; const b = l.get("bonus") || 0;
-                const rowSum = (h * rate) + b;
-                заработкаЧиста += rowSum;
-                if (b < 0) авансиНаСлужител += Math.abs(b);
-                html += `<tr><td>${l.get("date")}</td><td>${h}</td><td>${(h*rate).toFixed(2)}</td><td>${b.toFixed(2)}</td></tr>`;
+                const h = l.get("hours") || 0;
+                const b = l.get("bonus") || 0;
+                
+                if (h === -1) {
+                    сумаАванси += b;
+                    html += `<tr style="background:#fff3e0"><td>${l.get("date")}</td><td colspan="2">ИЗПЛАТЕН АВАНС</td><td style="color:red">-${b.toFixed(2)}</td></tr>`;
+                } else {
+                    const dayEarn = h * rate;
+                    общаЗаработка += (dayEarn + b);
+                    html += `<tr><td>${l.get("date")}</td><td>${h}</td><td>${dayEarn.toFixed(2)}</td><td>${b.toFixed(2)}</td></tr>`;
+                }
             });
 
-            const реалнаЗаплата = заработкаЧиста + авансиНаСлужител;
-            totalAvansi += авансиНаСлужител; totalOstatyk += заработкаЧиста; totalGlobal += реалнаЗаплата;
+            const остатъкЗаПлащане = общаЗаработка - сумаАванси;
+            globalPaidAvansi += сумаАванси; globalOstatyk += остатъкЗаПлащане; globalTotalFond += общаЗаработка;
 
             html += `</tbody></table>`;
             if (currentViewMode === "admin") {
@@ -220,9 +230,9 @@
             }
 
             html += `<div class="final-box">
-                <div class="summary-line"><span>ЗАРАБОТКА КЪМ ДНЕШНА ДАТА:</span> <strong>${реалнаЗаплата.toFixed(2)} €</strong></div>
-                <div class="summary-line" style="background:#fff9c4; padding:5px; border:none;"><span>ОСТАТЪК ЗА ПОЛУЧАВАНЕ:</span> <strong style="color:red; font-size:15px;">${заработкаЧиста.toFixed(2)} €</strong></div>
-                <div class="summary-line" style="border:none; margin-top:8px;"><span>ОБЩА ЗАПЛАТА:</span> <strong style="color:#2e7d32; font-size:18px;">${реалнаЗаплата.toFixed(2)} €</strong></div>
+                <div class="summary-line"><span>ОБЩА ЗАРАБОТКА (С БОНУСИ):</span> <strong>${общаЗаработка.toFixed(2)} €</strong></div>
+                <div class="summary-line"><span>ИЗПЛАТЕНИ АВАНСИ:</span> <strong style="color:orange">${сумаАванси.toFixed(2)} €</strong></div>
+                <div class="summary-line" style="background:#e8f5e9; padding:5px; border:none; margin-top:5px;"><span>ОСТАТЪК ЗА ПОЛУЧАВАНЕ:</span> <strong style="color:#2e7d32; font-size:16px;">${остатъкЗаПлащане.toFixed(2)} €</strong></div>
             </div></div>`;
             area.innerHTML += html;
         });
@@ -230,11 +240,29 @@
         if (currentViewMode === "admin") {
             document.getElementById('dashContainer').innerHTML = `
                 <div class="dashboard">
-                    <div class="dash-box dash-avans"><span class="dash-label">ИЗПЛАТЕНИ АВАНСИ</span><span class="dash-value">${totalAvansi.toFixed(2)} €</span></div>
-                    <div class="dash-box dash-zaplaty"><span class="dash-label">ОСТАТЪК ЗА ПЛАЩАНЕ</span><span class="dash-value">${totalOstatyk.toFixed(2)} €</span></div>
-                    <div class="dash-box dash-total"><span class="dash-label">ОБЩ ФОНД ЗАПЛАТИ</span><span class="dash-value">${totalGlobal.toFixed(2)} €</span></div>
+                    <div class="dash-box dash-avans"><span class="dash-label">ИЗПЛАТЕНИ АВАНСИ</span><span class="dash-value">${globalPaidAvansi.toFixed(2)} €</span></div>
+                    <div class="dash-box dash-zaplaty"><span class="dash-label">ОСТАТЪК ЗА ПЛАЩАНЕ</span><span class="dash-value">${globalOstatyk.toFixed(2)} €</span></div>
+                    <div class="dash-box dash-total"><span class="dash-label">ОБЩ ФОНД ЗАПЛАТИ</span><span class="dash-value">${globalTotalFond.toFixed(2)} €</span></div>
                 </div>`;
         }
+    }
+
+    async function payAdvance(name) {
+        const inputId = `adv_${name.replace(/\s/g,'')}`;
+        const amount = parseFloat(document.getElementById(inputId).value);
+        if(!amount || amount <= 0) return alert("Въведете сума!");
+        if(!confirm(`Записвате изплатен аванс от ${amount}€ на ${name}?`)) return;
+
+        const Log = Parse.Object.extend("WorkLog");
+        const entry = new Log();
+        await entry.save({ 
+            date: todayISO, 
+            staff: name, 
+            hours: -1, 
+            bonus: amount 
+        });
+        document.getElementById(inputId).value = '';
+        loadData();
     }
 
     function viewIndividual() {
@@ -245,7 +273,7 @@
             document.getElementById('monthlyArea').style.display = 'block';
             document.getElementById('passArea').style.display = 'none';
             loadData();
-        } else alert("Грешна парола за избрания служител!");
+        } else alert("Грешна парола!");
     }
 
     function unlock() {
@@ -263,27 +291,16 @@
         loadData();
     }
 
-    async function payAdvance(name) {
-        const inputId = `adv_${name.replace(/\s/g,'')}`;
-        const amount = parseFloat(document.getElementById(inputId).value);
-        if(!amount || amount <= 0) return alert("Въведете сума!");
-        const Log = Parse.Object.extend("WorkLog");
-        const entry = new Log();
-        await entry.save({ date: todayISO, staff: name, hours: 0, bonus: -amount });
-        loadData();
-    }
-
     function validateForm() {
-        const staff = document.getElementById('staffSel').value;
-        const hours = document.getElementById('h_val').value;
-        document.getElementById('saveBtn').disabled = (!staff || !hours || isNaN(parseFloat(hours)));
+        document.getElementById('saveBtn').disabled = (!document.getElementById('staffSel').value || !document.getElementById('h_val').value);
     }
 
     document.getElementById('saveBtn').addEventListener('click', async () => {
         const Log = Parse.Object.extend("WorkLog");
         const entry = new Log();
         await entry.save({
-            date: todayISO, staff: document.getElementById('staffSel').value,
+            date: todayISO, 
+            staff: document.getElementById('staffSel').value,
             hours: parseFloat(document.getElementById('h_val').value) || 0,
             bonus: parseFloat(document.getElementById('b_val').value) || 0
         });
