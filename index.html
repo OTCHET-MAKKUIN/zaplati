@@ -111,7 +111,7 @@
         <label>Парола за Месечна Ведомост:</label>
         <input type="password" id="p_field" placeholder="" 
                style="width: 150px; text-align: center;" autocomplete="new-password">
-        <button class="btn" onclick="unlock()" style="margin-top:15px;">ОТКЛЮЧИ ТАБЛИЦИТЕ</button>
+        <button class="btn" id="unlockBtn" onclick="unlock()" style="margin-top:15px;">ОТКЛЮЧИ ТАБЛИЦИТЕ</button>
     </div>
 
     <div id="monthlyArea" style="display:none; margin-top: 20px;"></div>
@@ -128,7 +128,6 @@
         "Вили": 3.80, "Стилян": 3.30
     };
 
-    // ГАРАНТИРАНЕ НА ЛОКАЛНА ДАТА (БЪЛГАРИЯ)
     const now = new Date();
     const todayISO = now.toLocaleDateString('sv-SE'); 
     
@@ -137,6 +136,14 @@
 
     const monthNames = ["ЯНУАРИ", "ФЕВРУАРИ", "МАРТ", "АПРИЛ", "МАЙ", "ЮНИ", "ЮЛИ", "АВГУСТ", "СЕПТЕМВРИ", "ОКТОМВРИ", "НОЕМВРИ", "ДЕКЕМВРИ"];
     document.getElementById('mainTitle').innerText = "ЗАПЛАТИ - " + monthNames[now.getMonth()];
+
+    // --- КОРЕКЦИЯТА ЗА ENTER ---
+    document.getElementById('p_field').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            unlock();
+        }
+    });
+    // ---------------------------
 
     window.onload = () => {
         document.getElementById('b_val').value = "";
@@ -194,7 +201,6 @@
         const area = document.getElementById('monthlyArea');
         area.innerHTML = '';
 
-        // ИЗЧИСЛЯВАНЕ НА ОБЩИ СУМИ ЗА ОБЕКТА
         let grandAvans = 0, grandZaplaty = 0, grandTotal = 0;
 
         Object.entries(staffRates).forEach(([name, rate]) => {
