@@ -37,7 +37,6 @@
         .nav-controls { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
         .nav-btn { background: #fff; border: 1px solid var(--google-purple); color: var(--google-purple); padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.3s; }
         
-        /* ДАШБОРД СТИЛОВЕ */
         .dashboard { display: flex; gap: 8px; margin: 15px 0; flex-wrap: wrap; }
         .dash-box { flex: 1; min-width: 120px; padding: 12px 8px; border-radius: 6px; text-align: center; color: #fff; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .dash-avans { background-color: #fbc02d; color: #000; }
@@ -76,14 +75,41 @@
             </select>
 
             <label style="margin-top:15px">ИЗРАБОТЕНИ ЧАСОВЕ</label>
-            <input type="text" id="h_val" placeholder="0" inputmode="decimal" oninput="validateForm()">
+            <input type="text" id="h_val" placeholder="0" 
+                   inputmode="decimal" 
+                   oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.'); validateForm();">
 
             <label style="margin-top:15px">БОНУС (€)</label>
-            <input type="text" id="b_val" placeholder="0.00" inputmode="decimal">
+            <input type="text" id="b_val" placeholder="0.00" 
+                   inputmode="decimal"
+                   oninput="this.value = this.value.replace(/[^0-9.,-]/g, '').replace(',', '.');">
 
             <button type="button" class="btn" id="saveBtn" disabled>ЗАПИШИ ДАННИТЕ</button>
             <div id="successStatus">✅ Успешно изпратено!</div>
         </form>
+    </div>
+
+    <div class="question-card" style="border-left: 5px solid #2196F3;">
+        <label>ВИЖ ЛИЧНИ ДАННИ</label>
+        <select id="userViewSel">
+            <option value="" disabled selected>Изберете име...</option>
+            <optgroup label="БАРМАН / СЕРВИТЬОР">
+                <option>Михаела</option><option>Ева</option><option>Виктория</option><option>Елисавета</option>
+            </optgroup>
+            <optgroup label="КУХНЯ">
+                <option>Ваня</option><option>Данчо</option><option>Павел</option>
+            </optgroup>
+            <optgroup label="АНИМАТОР / ОБЩ">
+                <option>Николай</option><option>Домна</option><option>Барбара</option>
+                <option>Пламена</option><option>Роси</option><option>Вили</option>
+                <option>Стилян</option>
+            </optgroup>
+        </select>
+        <input type="text" id="userPass" placeholder="Парола (цифри)" 
+               inputmode="numeric" 
+               style="margin-top:10px; width: 150px; text-align: center;"
+               oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+        <button class="btn" style="background: #2196F3;" onclick="viewIndividual()">ВИЖ МОЯТА ТАБЛИЦА</button>
     </div>
 
     <div class="today-container">
@@ -97,9 +123,9 @@
     </div>
 
     <div id="passArea">
-        <label>Парола за Месечна Ведомост:</label>
+        <label>Парола за Управител (Пълен отчет):</label>
         <input type="password" id="p_field" placeholder="" style="width: 150px; text-align: center;">
-        <button class="btn" onclick="unlock()" style="margin-top:15px;">ОТКЛЮЧИ ТАБЛИЦИТЕ</button>
+        <button class="btn" onclick="unlock()" style="margin-top:15px;">ОТКЛЮЧИ ВСИЧКИ</button>
     </div>
 
     <div id="monthlyArea" style="display:none; margin-top: 20px;"></div>
@@ -116,13 +142,19 @@
         "Вили": 3.80, "Стилян": 3.30
     };
 
+    const userPasswords = {
+        "Михаела": "4821", "Ева": "9350", "Виктория": "1174", "Елисавета": "6209",
+        "Ваня": "3381", "Данчо": "7742", "Павел": "5019", "Николай": "8834",
+        "Домна": "2956", "Барбара": "4410", "Пламена": "6023", "Роси": "1978",
+        "Вили": "3562", "Стилян": "8245"
+    };
+
     const now = new Date();
     const todayISO = now.toLocaleDateString('sv-SE'); 
     let viewMonth = now.getMonth();
     let viewYear = now.getFullYear();
+    let currentViewMode = "none";
     const monthNames = ["ЯНУАРИ", "ФЕВРУАРИ", "МАРТ", "АПРИЛ", "МАЙ", "ЮНИ", "ЮЛИ", "АВГУСТ", "СЕПТЕМВРИ", "ОКТОМВРИ", "НОЕМВРИ", "ДЕКЕМВРИ"];
-
-    document.getElementById('p_field').addEventListener('keypress', (e) => { if(e.key === 'Enter') unlock(); });
 
     async function loadData() {
         const query = new Parse.Query("WorkLog");
@@ -147,7 +179,7 @@
     function renderMonthly(results) {
         const area = document.getElementById('monthlyArea');
         area.innerHTML = '';
-        let globalAvans = 0, globalZaplaty = 0, globalTotal = 0;
+        let totalAvansi = 0, totalOstatyk = 0, totalGlobal = 0;
 
         area.innerHTML = `
             <div class="nav-controls">
@@ -160,76 +192,65 @@
         `;
 
         Object.entries(staffRates).forEach(([name, rate]) => {
+            if (currentViewMode !== "admin" && currentViewMode !== name) return;
+
             const logs = results.filter(r => r.get("staff") === name);
-            if(logs.length === 0) return;
+            if(logs.length === 0 && currentViewMode === "admin") return;
 
-            let заработкаЧиста = 0; 
-            let общоАвансиЗаСлужител = 0;   
-
-            let html = `<div class="staff-section"><div class="staff-title">${name} (${rate}€)</div><table>
-                <thead><tr><th>Дата</th><th>Часове</th><th>Сума</th><th>Бонус</th></tr></thead><tbody>`;
+            let заработкаЧиста = 0; let авансиНаСлужител = 0;   
+            let html = `<div class="staff-section"><div class="staff-title">${name} (${rate}€)</div><table><thead><tr><th>Дата</th><th>Часове</th><th>Сума</th><th>Бонус</th></tr></thead><tbody>`;
 
             logs.forEach(l => {
-                const d = new Date(l.get("date")).getDate();
-                const h = l.get("hours") || 0;
-                const b = l.get("bonus") || 0;
+                const h = l.get("hours") || 0; const b = l.get("bonus") || 0;
                 const rowSum = (h * rate) + b;
-                
                 заработкаЧиста += rowSum;
-                if (b < 0) общоАвансиЗаСлужител += Math.abs(b);
-
-                // За Дашборда (по твоя оригинална логика 1-10 и 11-31)
-                if(d <= 10) globalAvans += rowSum; else globalZaplaty += rowSum;
-
+                if (b < 0) авансиНаСлужител += Math.abs(b);
                 html += `<tr><td>${l.get("date")}</td><td>${h}</td><td>${(h*rate).toFixed(2)}</td><td>${b.toFixed(2)}</td></tr>`;
             });
 
-            const реалнаЗаплата = заработкаЧиста + общоАвансиЗаСлужител;
-            globalTotal += реалнаЗаплата;
+            const реалнаЗаплата = заработкаЧиста + авансиНаСлужител;
+            totalAvansi += авансиНаСлужител; totalOstatyk += заработкаЧиста; totalGlobal += реалнаЗаплата;
 
-            html += `</tbody></table>
-                <div class="advance-control">
+            html += `</tbody></table>`;
+            if (currentViewMode === "admin") {
+                html += `<div class="advance-control">
                     <input type="number" id="adv_${name.replace(/\s/g,'')}" class="advance-input" placeholder="Сума €">
                     <button class="advance-btn" onclick="payAdvance('${name}')">ИЗПЛАТИ АВАНС</button>
-                </div>
-                <div class="final-box">
-                    <div class="summary-line"><span>ЗАРАБОТКА КЪМ ДНЕШНА ДАТА:</span> <strong>${реалнаЗаплата.toFixed(2)} €</strong></div>
-                    <div class="summary-line" style="background:#fff9c4; padding:5px; border:none;"><span>ОСТАТЪК ЗА ПОЛУЧАВАНЕ:</span> <strong style="color:red; font-size:15px;">${заработкаЧиста.toFixed(2)} €</strong></div>
-                    <div class="summary-line" style="border:none; margin-top:8px;"><span>ОБЩА ЗАПЛАТА:</span> <strong style="color:#2e7d32; font-size:18px;">${реалнаЗаплата.toFixed(2)} €</strong></div>
-                </div></div>`;
+                </div>`;
+            }
+
+            html += `<div class="final-box">
+                <div class="summary-line"><span>ЗАРАБОТКА КЪМ ДНЕШНА ДАТА:</span> <strong>${реалнаЗаплата.toFixed(2)} €</strong></div>
+                <div class="summary-line" style="background:#fff9c4; padding:5px; border:none;"><span>ОСТАТЪК ЗА ПОЛУЧАВАНЕ:</span> <strong style="color:red; font-size:15px;">${заработкаЧиста.toFixed(2)} €</strong></div>
+                <div class="summary-line" style="border:none; margin-top:8px;"><span>ОБЩА ЗАПЛАТА:</span> <strong style="color:#2e7d32; font-size:18px;">${реалнаЗаплата.toFixed(2)} €</strong></div>
+            </div></div>`;
             area.innerHTML += html;
         });
 
-        document.getElementById('dashContainer').innerHTML = `
-            <div class="dashboard">
-                <div class="dash-box dash-avans"><span class="dash-label">ВСИЧКИ АВАНСИ ДО 10-то</span><span class="dash-value">${globalAvans.toFixed(2)} €</span></div>
-                <div class="dash-box dash-zaplaty"><span class="dash-label">ВСИЧКИ ЗАПЛАТИ ДО 31-во</span><span class="dash-value">${globalZaplaty.toFixed(2)} €</span></div>
-                <div class="dash-box dash-total"><span class="dash-label">ОБЩО ЗАПЛАТИ + БОНУСИ</span><span class="dash-value">${globalTotal.toFixed(2)} €</span></div>
-            </div>`;
+        if (currentViewMode === "admin") {
+            document.getElementById('dashContainer').innerHTML = `
+                <div class="dashboard">
+                    <div class="dash-box dash-avans"><span class="dash-label">ВСИЧКИ АВАНСИ</span><span class="dash-value">${totalAvansi.toFixed(2)} €</span></div>
+                    <div class="dash-box dash-zaplaty"><span class="dash-label">ОСТАТЪК ЗА ПЛАЩАНЕ</span><span class="dash-value">${totalOstatyk.toFixed(2)} €</span></div>
+                    <div class="dash-box dash-total"><span class="dash-label">ОБЩ ФОНД ЗАПЛАТИ</span><span class="dash-value">${totalGlobal.toFixed(2)} €</span></div>
+                </div>`;
+        }
     }
 
-    async function payAdvance(name) {
-        const inputId = `adv_${name.replace(/\s/g,'')}`;
-        const amount = parseFloat(document.getElementById(inputId).value);
-        if(!amount || amount <= 0) return alert("Въведете сума!");
-        if(!confirm(`Изплащате ${amount}€ аванс на ${name}?`)) return;
-
-        const Log = Parse.Object.extend("WorkLog");
-        const entry = new Log();
-        try {
-            await entry.save({ date: todayISO, staff: name, hours: 0, bonus: -amount });
+    function viewIndividual() {
+        const user = document.getElementById('userViewSel').value;
+        const pass = document.getElementById('userPass').value;
+        if(user && userPasswords[user] === pass) {
+            currentViewMode = user;
+            document.getElementById('monthlyArea').style.display = 'block';
+            document.getElementById('passArea').style.display = 'none';
             loadData();
-        } catch (e) { alert("Грешка!"); }
-    }
-
-    function validateForm() {
-        const staff = document.getElementById('staffSel').value;
-        const hours = document.getElementById('h_val').value;
-        document.getElementById('saveBtn').disabled = (!staff || !hours);
+        } else alert("Грешна парола за избрания служител!");
     }
 
     function unlock() {
         if(document.getElementById('p_field').value === 'Flamingo3000') {
+            currentViewMode = "admin";
             document.getElementById('passArea').style.display = 'none';
             document.getElementById('monthlyArea').style.display = 'block';
             loadData();
@@ -238,25 +259,38 @@
 
     function changeMonth(delta) {
         viewMonth += delta;
-        if(viewMonth < 0){viewMonth=11; viewYear--;} 
-        if(viewMonth > 11){viewMonth=0; viewYear++;}
+        if(viewMonth < 0){viewMonth=11; viewYear--;} if(viewMonth > 11){viewMonth=0; viewYear++;}
         loadData();
+    }
+
+    async function payAdvance(name) {
+        const inputId = `adv_${name.replace(/\s/g,'')}`;
+        const amount = parseFloat(document.getElementById(inputId).value);
+        if(!amount || amount <= 0) return alert("Въведете сума!");
+        const Log = Parse.Object.extend("WorkLog");
+        const entry = new Log();
+        await entry.save({ date: todayISO, staff: name, hours: 0, bonus: -amount });
+        loadData();
+    }
+
+    function validateForm() {
+        const staff = document.getElementById('staffSel').value;
+        const hours = document.getElementById('h_val').value;
+        document.getElementById('saveBtn').disabled = (!staff || !hours || isNaN(parseFloat(hours)));
     }
 
     document.getElementById('saveBtn').addEventListener('click', async () => {
         const Log = Parse.Object.extend("WorkLog");
         const entry = new Log();
-        try {
-            await entry.save({
-                date: todayISO, staff: document.getElementById('staffSel').value,
-                hours: parseFloat(document.getElementById('h_val').value) || 0,
-                bonus: parseFloat(document.getElementById('b_val').value) || 0
-            });
-            document.getElementById('h_val').value = ''; document.getElementById('b_val').value = '';
-            document.getElementById('successStatus').style.display = 'block';
-            setTimeout(() => { document.getElementById('successStatus').style.display = 'none'; }, 2000);
-            loadData();
-        } catch (e) { alert("Грешка!"); }
+        await entry.save({
+            date: todayISO, staff: document.getElementById('staffSel').value,
+            hours: parseFloat(document.getElementById('h_val').value) || 0,
+            bonus: parseFloat(document.getElementById('b_val').value) || 0
+        });
+        document.getElementById('h_val').value = ''; document.getElementById('b_val').value = '';
+        document.getElementById('successStatus').style.display = 'block';
+        setTimeout(() => { document.getElementById('successStatus').style.display = 'none'; }, 2000);
+        loadData();
     });
 
     loadData();
