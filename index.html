@@ -150,7 +150,6 @@
     let currentViewMode = "none";
     const monthNames = ["ЯНУАРИ", "ФЕВРУАРИ", "МАРТ", "АПРИЛ", "МАЙ", "ЮНИ", "ЮЛИ", "АВГУСТ", "СЕПТЕМВРИ", "ОКТОМВРИ", "НОЕМВРИ", "ДЕКЕМВРИ"];
 
-    // ФУНКЦИИ ЗА ПОДДРЪЖКА НА ENTER
     document.getElementById('userPass').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') viewIndividual();
     });
@@ -170,7 +169,8 @@
             let h = l.get("hours");
             let b = l.get("bonus") || 0;
             let displayHours = (h === -1) ? "-" : h + " ч.";
-            let displayBonus = (h === -1) ? "АВАНС: " + b + " €" : b + " €";
+            // КОРЕКЦИЯ: Показва само "АВАНС" без сумата в общата таблица
+            let displayBonus = (h === -1) ? "АВАНС" : b + " €";
             tBody.innerHTML += `<tr><td>${l.get("staff")}</td><td>${displayHours}</td><td>${displayBonus}</td></tr>`;
         });
         
