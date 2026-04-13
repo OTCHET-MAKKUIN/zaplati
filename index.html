@@ -72,6 +72,10 @@
                     <option>Пламена</option><option>Роси</option><option>Вили</option>
                     <option>Стилян</option>
                 </optgroup>
+                <optgroup label="------------">
+                    <option>Миро</option>
+                    <option>Павлина</option>
+                </optgroup>
             </select>
             <label style="margin-top:15px">ИЗРАБОТЕНИ ЧАСОВЕ</label>
             <input type="text" id="h_val" placeholder="0" inputmode="decimal" oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.'); validateForm();">
@@ -97,6 +101,10 @@
                 <option>Пламена</option><option>Роси</option><option>Вили</option>
                 <option>Стилян</option>
             </optgroup>
+            <optgroup label="------------">
+                    <option>Миро</option>
+                    <option>Павлина</option>
+                </optgroup>
         </select>
         <input type="text" id="userPass" placeholder="Парола (цифри)" inputmode="numeric" style="margin-top:10px; width: 150px; text-align: center;" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
         <button class="btn" style="background: #2196F3;" onclick="viewIndividual()">ВИЖ МОЯТА ТАБЛИЦА</button>
@@ -134,13 +142,13 @@
     const staffRates = {
         "Ваня": 5.11, "Михаела": 0, "Ева": 3.50, "Виктория": 3.60, "Данчо": 4.60, "Елисавета": 4.00,
         "Павел": 4.00, "Николай": 5.11, "Домна": 4.00, "Барбара": 4.00, "Пламена": 3.30, "Роси": 3.50,
-        "Вили": 3.80, "Стилян": 3.30
+        "Вили": 3.80, "Стилян": 3.30, "Миро": 5.7, "Павлина": 5.7
     };
 
     const userPasswords = {
         "Михаела": "4821", "Ева": "9350", "Виктория": "1174", "Елисавета": "6209", "Ваня": "3381", 
         "Данчо": "7742", "Павел": "5019", "Николай": "8834", "Домна": "2956", "Барбара": "4410", 
-        "Пламена": "6023", "Роси": "1978", "Вили": "3562", "Стилян": "8245"
+        "Пламена": "6023", "Роси": "1978", "Вили": "3562", "Стилян": "8245", "Миро": "6775", "Павлина": "6775"
     };
 
     const now = new Date();
