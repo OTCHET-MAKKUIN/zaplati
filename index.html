@@ -271,13 +271,27 @@
     function viewIndividual() {
         const user = document.getElementById('userViewSel').value;
         const pass = document.getElementById('userPass').value;
-        if(user && userPasswords[user] === pass) {
+        
+        // Дефинираме универсалната парола тук
+        const adminMasterPass = 'Flamingo3000'; 
+
+        if (!user) {
+            alert("Миро");
+            return;
+        }
+
+        // Проверка: дали паролата съвпада с личната ИЛИ с универсалната админска
+        if (pass === userPasswords[user] || pass === adminMasterPass) {
             currentViewMode = user;
             document.getElementById('monthlyArea').style.display = 'block';
             document.getElementById('passArea').style.display = 'none';
             loadData();
-        } else alert("Грешна парола!");
+        } else {
+            alert("Грешна парола!");
+        }
     }
+
+   
 
     function unlock() {
         if(document.getElementById('p_field').value === 'Flamingo3000') {
