@@ -4,36 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ЗАПЛАТИ - Текущ Месец</title>
-    <link rel="icon" type="image/png" href="logo-makkuin.png">
+    <!-- Пълен линк към иконата в GitHub -->
+    <link rel="icon" type="image/png" href="https://otchet-makkuin.github.io/zaplati/logo-makkuin.png">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --google-purple: #673ab7; --bg-color: #f0ebf8; --card-white: #ffffff; }
-        body { margin: 0; background-color: var(--bg-color); font-family: 'Roboto', sans-serif; padding: 20px 10px; font-size: 13px; }
-        .container { max-width: 850px; margin: 0 auto; }
-        .card { background: white; border-radius: 8px; border: 1px solid #dadce0; margin-bottom: 15px; overflow: hidden; }
-        .accent { height: 10px; background: var(--google-purple); }
-        .content { padding: 20px; }
-        .question-card { background: white; padding: 20px; border-radius: 8px; border: 1px solid #dadce0; margin-bottom: 12px; }
+        :root { --google-purple: #673ab7; --bg-color: #f0ebf8; }
+        
+        body { 
+            margin: 0; 
+            background-color: var(--bg-color); 
+            /* Логото като фон тип воден знак */
+            background-image: url('https://otchet-makkuin.github.io/zaplati/IMG_2002.png');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            background-size: 50%;
+            font-family: 'Roboto', sans-serif; 
+            padding: 0;
+            font-size: 13px;
+            min-height: 100vh;
+        }
+
+        /* Прозрачен слой за четливост */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(240, 235, 248, 0.7); 
+            z-index: -1;
+        }
+
+        .container { max-width: 850px; margin: 40px auto; padding: 0 10px; position: relative; z-index: 1; }
+        
+        /* Стилизирана заглавна част с лога */
+        .header-accent { height: 10px; background: var(--google-purple); border-radius: 8px 8px 0 0; }
+        
+        .form-title { 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 15px 24px; 
+            border-radius: 0 0 8px 8px; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+            margin-bottom: 15px; 
+            text-align:center; 
+            position: relative; 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(5px);
+        }
+
+        h1 { margin: 0; font-size: 20px; color: #333; flex-grow: 1; }
+
+        /* Бутон за навигация обратно */
+        .nav-link-btn {
+            background: #4caf50; 
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 11px;
+            transition: 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .nav-link-btn:hover { background: #43a047; transform: translateY(-1px); }
+
+        /* Контейнер за логото */
+        .logos-container {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+        }
+
+        .header-logo {
+            height: 55px; 
+            width: auto;
+            object-fit: contain;
+        }
+
+        .question-card { 
+            background: rgba(255, 255, 255, 0.96); 
+            padding: 20px; 
+            border-radius: 8px; 
+            border: 1px solid #dadce0; 
+            margin-bottom: 12px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
         label { display: block; margin-bottom: 8px; font-weight: 500; color: #202124; }
         select, input { width: 100%; border: none; border-bottom: 1px solid #dadce0; padding: 10px 0; outline: none; font-size: 15px; background: transparent; }
         select:focus, input:focus { border-bottom: 2px solid var(--google-purple); }
+        
         .btn { background: var(--google-purple); color: white; border: none; padding: 14px; border-radius: 4px; cursor: pointer; font-weight: 500; width: 100%; margin-top: 10px; font-size: 14px; transition: 0.3s; }
         .btn:disabled { background: #ccc; cursor: not-allowed; }
+        
         #successStatus { color: #2e7d32; font-weight: bold; text-align: center; margin-top: 10px; display: none; }
-        .today-container { background: #fff; border-radius: 8px; border: 1px solid #ddd; overflow: hidden; margin-bottom: 20px; }
+        
+        .today-container { background: rgba(255, 255, 255, 0.96); border-radius: 8px; border: 1px solid #ddd; overflow: hidden; margin-bottom: 20px; }
         .today-header { background: #e8f0fe; padding: 10px; font-weight: bold; border-bottom: 1px solid #ddd; text-align: center; }
         .today-scroll { max-height: 380px; overflow-y: auto; scroll-behavior: smooth; }
         .today-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .today-table thead { position: sticky; top: 0; background: #fff; z-index: 1; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .today-table td, .today-table th { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
-        .staff-section { background: white; border-radius: 8px; padding: 15px; margin-bottom: 30px; border-top: 5px solid var(--google-purple); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        .staff-section { background: rgba(255, 255, 255, 0.98); border-radius: 8px; padding: 15px; margin-bottom: 30px; border-top: 5px solid var(--google-purple); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .staff-title { font-weight: bold; font-size: 16px; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        
         table { width: 100%; border-collapse: collapse; font-size: 11px; }
         th { background: #f8f9fa; padding: 8px; border: 1px solid #ddd; }
         td { padding: 6px; border: 1px solid #ddd; text-align: center; }
+
         .final-box { background: #f9f9f9; border: 1px solid #eee; padding: 10px; margin-top: 10px; border-radius: 5px; }
         .summary-line { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #ddd; font-size: 13px; }
-        #passArea { text-align: center; padding: 30px; background: white; border-radius: 8px; margin-top: 40px; border: 1px solid #ddd; }
+        
+        #passArea { text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.95); border-radius: 8px; margin-top: 40px; border: 1px solid #ddd; }
+        
         .nav-controls { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
         .nav-btn { background: #fff; border: 1px solid var(--google-purple); color: var(--google-purple); padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.3s; }
         
@@ -48,14 +134,32 @@
         .advance-control { display: flex; gap: 5px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
         .advance-input { width: 80px !important; font-size: 12px !important; padding: 5px !important; }
         .advance-btn { background: #d32f2f; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+
+        @media (max-width: 600px) {
+            .form-title { padding: 15px; flex-direction: column; gap: 10px; }
+            h1 { order: 1; font-size: 18px; }
+            .nav-link-btn { order: 3; width: 100%; text-align: center; }
+            .logos-container { order: 2; margin: 0; }
+            .header-logo { height: 45px; }
+        }
     </style>
     <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
 </head>
 <body>
 
 <div class="container">
-    <div class="card"><div class="accent"></div><div class="content"><h1 id="mainTitle" style="margin:0; text-align:center;">ОТЧЕТ ЗАПЛАТИ</h1></div></div>
+    <div class="header-accent"></div>
+    <div class="form-title">
+        <!-- Бутон за връщане към отчета -->
+        <a href="https://otchet-makkuin.github.io/zaplati/index.html" class="nav-link-btn">◀ КЪМ ОТЧЕТ</a>
+        <h1>ОТЧЕТ ЗАПЛАТИ</h1>
+        <div class="logos-container">
+            <!-- Само логото на Маккуин остава тук -->
+            <img src="https://otchet-makkuin.github.io/zaplati/IMG_2002.png" alt="McQueen Logo" class="header-logo" onerror="this.style.display='none'">
+        </div>
+    </div>
 
+    <!-- ФОРМА ЗА ВЪВЕЖДАНЕ -->
     <div class="question-card">
         <form autocomplete="off">
             <label>СЛУЖИТЕЛ</label>
@@ -86,6 +190,7 @@
         </form>
     </div>
 
+    <!-- ИНДИВИДУАЛНА СПРАВКА -->
     <div class="question-card" style="border-left: 5px solid #2196F3;">
         <label>ИНДИВИДУАЛНА СПРАВКА</label>
         <select id="userViewSel">
@@ -102,14 +207,15 @@
                 <option>Стилян</option>
             </optgroup>
             <optgroup label="------------">
-                    <option>Миро</option>
-                    <option>Павлина</option>
-                </optgroup>
+                <option>Миро</option>
+                <option>Павлина</option>
+            </optgroup>
         </select>
         <input type="text" id="userPass" placeholder="Парола (цифри)" inputmode="numeric" style="margin-top:10px; width: 150px; text-align: center;" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
         <button class="btn" style="background: #2196F3;" onclick="viewIndividual()">ВИЖ МОЯТА ТАБЛИЦА</button>
     </div>
 
+    <!-- ТАБЛИЦА С ДНЕШНИ ЗАПИСИ -->
     <div class="today-container">
         <div class="today-header">ДНЕШНИ ЗАПИСИ</div>
         <div id="todayScrollBox" class="today-scroll">
@@ -126,12 +232,14 @@
         </div>
     </div>
 
+    <!-- ПЪЛЕН ОТЧЕТ (ПИН) -->
     <div id="passArea">
         <label>Парола за Управител (Пълен отчет):</label>
         <input type="password" id="p_field" style="width: 150px; text-align: center;">
         <button class="btn" onclick="unlock()" style="margin-top:15px;">ОТКЛЮЧИ ВСИЧКИ</button>
     </div>
 
+    <!-- МЕСЕЧЕН ОТЧЕТ (СКРИТ) -->
     <div id="monthlyArea" style="display:none; margin-top: 20px;"></div>
 </div>
 
@@ -177,7 +285,6 @@
             let h = l.get("hours");
             let b = l.get("bonus") || 0;
             let displayHours = (h === -1) ? "-" : h + " ч.";
-            // КОРЕКЦИЯ: Показва само "АВАНС" без сумата в общата таблица
             let displayBonus = (h === -1) ? "АВАНС" : b + " €";
             tBody.innerHTML += `<tr><td>${l.get("staff")}</td><td>${displayHours}</td><td>${displayBonus}</td></tr>`;
         });
@@ -271,16 +378,13 @@
     function viewIndividual() {
         const user = document.getElementById('userViewSel').value;
         const pass = document.getElementById('userPass').value;
-        
-        // Дефинираме универсалната парола тук
         const adminMasterPass = '6775'; 
 
         if (!user) {
-            alert("Миро");
+            alert("Моля, изберете име!");
             return;
         }
 
-        // Проверка: дали паролата съвпада с личната ИЛИ с универсалната админска
         if (pass === userPasswords[user] || pass === adminMasterPass) {
             currentViewMode = user;
             document.getElementById('monthlyArea').style.display = 'block';
@@ -290,8 +394,6 @@
             alert("Грешна парола!");
         }
     }
-
-   
 
     function unlock() {
         if(document.getElementById('p_field').value === 'Flamingo3000') {
